@@ -15,5 +15,5 @@ app.register_blueprint(post_API)
 app.register_blueprint(user_API)
 app.register_blueprint(thread_API)
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)  # TODO Change debug in production
+if __name__ == "__main__":
+    app.run(host='0.0.0.0',port=8080)
