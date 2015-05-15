@@ -1,5 +1,4 @@
-from settings import db, sqlSchema
-import sys
+from settings import sqlSchema, request_db
 
 
 def list_following(cursor, user_id):
@@ -68,15 +67,15 @@ def post_details(cursor, post_id):
 
 def init_tables():
     query = ''
-    with open(sqlSchema, 'r') as f:
-        cursor = db.cursor()
-        for line in f:
-            query += line
-            if ';' in line:
-                try:
-                    cursor.execute(query)
-                    db.commit()
-                except:
-                    print (sys.exc_info()[1][1])
-                query = ''
-        cursor.close()
+    db = request_db()
+    cursor = db.cursor()
+    f = open(sqlSchema, 'r')
+    for line in f:
+        query += line
+        if ';' in line:
+            cursor.execute(query)
+            db.commit()
+            query = ''
+    f.close()
+    cursor.close()
+    db.close()

@@ -1,5 +1,5 @@
-bind = "127.0.0.1:8080"
+bind = "127.0.0.1:4242"
 workers = 3
-logfile = "/home/tpadmin/log/gunicorn.log"
-loglevel = "info"
-proc_name = "bd"
+daemon = True
+errorlog = "gunicorn_error.log"
+proc_name = "tpapi"

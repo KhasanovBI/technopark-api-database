@@ -1,6 +1,6 @@
 import MySQLdb
 from flask import Blueprint, request, jsonify
-from settings import BASE_URL, db, RESPONSE_CODES
+from settings import BASE_URL, RESPONSE_CODES, request_db
 from utils import queries
 from utils.queries import list_following
 from utils.queries import list_followers
@@ -14,6 +14,7 @@ def forum_create():
     short_name = request.json.get('short_name', None)
     user = request.json.get('user', None)
 
+    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
 
     try:
@@ -27,6 +28,7 @@ def forum_create():
     forum = queries.forum_details(cursor, short_name)
 
     cursor.close()
+    db.close()
     return jsonify(code=0, response=forum)
 
 
@@ -39,6 +41,7 @@ def forum_details():
         code = 1
         return jsonify(code=code, response=RESPONSE_CODES[code])
 
+    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
 
     forum = queries.forum_details(cursor, short_name)
@@ -48,6 +51,7 @@ def forum_details():
         forum.update({'user': user})
 
     cursor.close()
+    db.close()
     return jsonify(code=0, response=forum)
 
 
@@ -76,6 +80,7 @@ def forum_list_posts():
         query += "LIMIT %s;"
         query_params += (int(limit),)
 
+    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(query, query_params)
 
@@ -97,6 +102,7 @@ def forum_list_posts():
         post.update({'date': str(post['date'])})
 
     cursor.close()
+    db.close()
     return jsonify(code=0, response=posts)
 
 
@@ -125,6 +131,7 @@ def forum_list_threads():
         query += "LIMIT %s;"
         query_params += (int(limit),)
 
+    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(query, query_params)
 
@@ -142,6 +149,7 @@ def forum_list_threads():
         thread.update({'date': str(thread['date'])})
 
     cursor.close()
+    db.close()
     return jsonify(code=0, response=threads)
 
 
@@ -170,6 +178,7 @@ def forum_list_users():
         query += "LIMIT %s;"
         query_params += (int(limit),)
 
+    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(query, query_params)
 
@@ -185,4 +194,5 @@ def forum_list_users():
         user.update({'following': following, 'followers': followers, 'subscriptions': threads})
 
     cursor.close()
+    db.close()
     return jsonify(code=0, response=users)

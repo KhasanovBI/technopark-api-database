@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # coding: utf-8
 from flask import Flask
 from views.general import general_API
@@ -16,4 +15,4 @@ app.register_blueprint(user_API)
 app.register_blueprint(thread_API)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0',port=8080)
+    app.run(port=4242)

@@ -1,3 +1,3 @@
 #!/bin/bash
-gunicorn run_server:app
+gunicorn -c gunicorn.conf.py run_server:app
 echo

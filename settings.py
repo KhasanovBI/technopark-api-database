@@ -12,5 +12,7 @@ try:
     from local_settings import *
 except ImportError:
     pass
-db = MySQLdb.connect(host=DATABASE['HOST'], user=DATABASE['USER'], passwd=DATABASE['PASSWORD'], db=DATABASE['NAME'],
+
+def request_db():
+    return MySQLdb.connect(host=DATABASE['HOST'], user=DATABASE['USER'], passwd=DATABASE['PASSWORD'], db=DATABASE['NAME'],
                      charset=DATABASE['CHARSET'])
