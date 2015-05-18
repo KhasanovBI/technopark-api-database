@@ -1,22 +1,17 @@
 from settings import sqlSchema, request_db
 
 
-def list_following(cursor, user_id):
-    cursor.execute("""SELECT `u1`.`email` FROM `users` AS `u1` IGNORE INDEX (`PRIMARY`)
-                      INNER JOIN `follower_followee` AS `ff` ON `u1`.`id` = `ff`.`followee`
-                      WHERE `ff`.`follower` = %s;""", (user_id,))
+def list_following(cursor, email):
+    cursor.execute("""SELECT `followee` FROM `follower_followee` WHERE `follower` = %s""", (email,))
     z = cursor.fetchall()
-    following = [i['email'] for i in z]
-
+    following = [i['followee'] for i in z]
     return following
 
 
-def list_followers(cursor, user_id):
-    cursor.execute("""SELECT `u1`.`email` FROM `users` AS `u1` IGNORE INDEX (`PRIMARY`)
-                      INNER JOIN `follower_followee` AS `ff` ON `u1`.`id` = `ff`.`follower`
-                      WHERE `ff`.`followee` = %s;""", (user_id,))
-    followers = [i['email'] for i in cursor.fetchall()]
-
+def list_followers(cursor, email):
+    cursor.execute("""SELECT `follower` FROM `follower_followee` WHERE `followee` = %s""", (email,))
+    z = cursor.fetchall()
+    followers = [i['follower'] for i in z]
     return followers
 
 
@@ -27,8 +22,8 @@ def user_details(cursor, email):
     if user is None:
         return None
 
-    following = list_following(cursor, user['id'])
-    followers = list_followers(cursor, user['id'])
+    following = list_following(cursor, user['email'])
+    followers = list_followers(cursor, user['email'])
 
     cursor.execute("""SELECT `thread` FROM `users_threads` WHERE `user` = %s;""", (email,))
     threads = [i['thread'] for i in cursor.fetchall()]

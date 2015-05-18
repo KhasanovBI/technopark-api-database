@@ -20,7 +20,7 @@ def user_create():
     cursor = db.cursor()
     try:
         cursor.execute(
-            """INSERT INTO `users` (`email`, `username`, `name`, `about`, `isAnonymous`) VALUE (%s, %s, %s, %s, %s);""",
+            """INSERT INTO `users` (`email`, `username`, `name`, `about`, `isAnonymous`) VALUES (%s, %s, %s, %s, %s);""",
             (params['email'], params['username'], params['name'], params['about'], params['isAnonymous']))
         user_id = cursor.lastrowid
         db.commit()
@@ -34,7 +34,6 @@ def user_create():
 
     user = params
     user.update({'id': user_id})
-
     return jsonify(code=0, response=user)
 
 
@@ -51,7 +50,6 @@ def user_details():
     user = queries.user_details(cursor, email)
     cursor.close()
     db.close()
-
     return jsonify(code=0, response=user)
 
 
@@ -125,8 +123,7 @@ def user_follow():
 
     try:
         cursor.execute("""INSERT INTO `follower_followee` (`follower`, `followee`)
-                          SELECT `u1`.`id`, `u2`.`id` FROM `users` AS `u1`
-                          JOIN `users` AS `u2` ON `u1`.`email` = %s AND `u2`.`email` = %s;""", (follower, followee))
+VALUES (%s, %s);""", (follower, followee))
 
         db.commit()
     except MySQLdb.Error:
@@ -149,14 +146,13 @@ def user_list_followers():
         code = 1
         return jsonify(code=code, response=RESPONSE_CODES[code])
 
-    query = """SELECT DISTINCT `u1`.* FROM `users` AS `u1`
-            JOIN `follower_followee` AS `ff` ON `u1`.`id` = `ff`.`follower`
-            JOIN `users` AS `u2` ON `ff`.`followee` = `u2`.`id`
-            WHERE `u2`.`email` = %s """
+    query = """SELECT `about`, `email`, `id`, `isAnonymous`, `name`, `username`  FROM `follower_followee` AS `ff`
+JOIN `users` ON `users`.`email` = `ff`.`follower`
+WHERE `ff`.followee = %s"""
     query_params = (user,)
 
     if since_id is not None:
-        query += "AND `u1`.`id` >= %s "
+        query += "AND `users`.`id` >= %s "
         query_params += (int(since_id),)
 
     query += "ORDER BY `name` " + order + " "
@@ -171,8 +167,8 @@ def user_list_followers():
     users = [i for i in cursor.fetchall()]
 
     for user in users:
-        following = list_following(cursor, user['id'])
-        followers = list_followers(cursor, user['id'])
+        following = list_following(cursor, user['email'])
+        followers = list_followers(cursor, user['email'])
 
         cursor.execute("""SELECT `thread` FROM `users_threads` WHERE `user` = %s;""", (user['email'],))
         threads = [i['thread'] for i in cursor.fetchall()]
@@ -195,14 +191,13 @@ def user_list_following():
         code = 1
         return jsonify(code=code, response=RESPONSE_CODES[code])
 
-    query = """SELECT DISTINCT `u1`.* FROM `users` AS `u1`
-               JOIN `follower_followee` AS `ff` ON `u1`.`id` = `ff`.`followee`
-               JOIN `users` AS `u2` ON `ff`.`follower` = `u2`.`id`
-               WHERE `u2`.`email` = %s """
+    query = """SELECT `about`, `email`, `id`, `isAnonymous`, `name`, `username`  FROM `follower_followee` AS `ff`
+JOIN `users` ON `users`.`email` = `ff`.`followee`
+WHERE `ff`.follower = %s"""
     query_params = (user,)
 
     if since_id is not None:
-        query += "AND `u1`.`id` >= %s "
+        query += "AND `users`.`id` >= %s "
         query_params += (int(since_id),)
 
     query += "ORDER BY `name` " + order + " "
@@ -218,8 +213,8 @@ def user_list_following():
     users = [i for i in cursor.fetchall()]
 
     for user in users:
-        following = list_following(cursor, user['id'])
-        followers = list_followers(cursor, user['id'])
+        following = list_following(cursor, user['email'])
+        followers = list_followers(cursor, user['email'])
 
         cursor.execute("""SELECT `thread` FROM `users_threads` WHERE `user` = %s;""", (user['email'],))
         threads = [i['thread'] for i in cursor.fetchall()]
@@ -228,6 +223,7 @@ def user_list_following():
 
     cursor.close()
     db.close()
+    print(users)
     return jsonify(code=0, response=users)
 
 
@@ -239,12 +235,8 @@ def user_unfollow():
     db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
     try:
-        cursor.execute("""SELECT `u1`.`id`, `u2`.`id` FROM `users` AS `u1`
-                      INNER JOIN `users` AS `u2` ON `u1`.`email` = %s AND `u2`.`email` = %s;""", (follower, followee))
-        f_er_id, f_ee_id = cursor.fetchone().values()
-
         cursor.execute("""DELETE FROM `follower_followee` WHERE `follower` = %s AND `followee` = %s;""",
-                       (f_er_id, f_ee_id))
+                       (follower, followee))
         db.commit()
     except MySQLdb.Error:
         db.rollback()
