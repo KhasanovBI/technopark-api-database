@@ -164,8 +164,8 @@ def forum_list_users():
         code = 1
         return jsonify(code=code, response=RESPONSE_CODES[code])
 
-    query = """SELECT DISTINCT `users`.`id`, `username`, `name`, `about`, `isAnonymous`, `email` FROM `users`
-            INNER JOIN `posts` ON `user` = `email` WHERE `forum` = %s"""
+    query = """SELECT `users`.`id`, `username`, `name`, `about`, `isAnonymous`, `email` FROM `users`
+            WHERE `users`.`email` IN (SELECT DISTINCT `user` FROM `posts` WHERE `forum` = %s)"""
     query_params = (forum,)
 
     if since_id is not None:

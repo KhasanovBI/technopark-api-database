@@ -7,7 +7,7 @@ CREATE TABLE users (
   about       TEXT,
   isAnonymous BOOL DEFAULT FALSE  NOT NULL,
   PRIMARY KEY (id),
-  KEY id_email (id, email)
+  KEY name_email (name, email)
 );
 
 DROP TABLE IF EXISTS follower_followee;
