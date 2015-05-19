@@ -8,6 +8,8 @@ from views.thread import thread_API
 
 app = Flask(__name__)
 
+app.debug = True
+
 app.register_blueprint(general_API)
 app.register_blueprint(forum_API)
 app.register_blueprint(post_API)
