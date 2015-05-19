@@ -24,7 +24,7 @@ def thread_create():
     try:
         cursor.execute("""INSERT INTO `threads`
                           (`isDeleted`, `forum`, `title`, `isClosed`, `user`, `date`, `message`, `slug`)
-                          VALUE (%s, %s, %s, %s, %s, %s, %s, %s);""",
+                          VALUES (%s, %s, %s, %s, %s, %s, %s, %s);""",
                        (is_deleted, forum, title, is_closed, user, date, message, slug))
 
         thread_id = cursor.lastrowid
@@ -301,7 +301,7 @@ def thread_subscribe():
     cursor = db.cursor()
 
     try:
-        cursor.execute("""INSERT INTO `users_threads` (`user`, `thread`) VALUE (%s, %s);""",
+        cursor.execute("""INSERT INTO `users_threads` (`user`, `thread`) VALUES (%s, %s);""",
                        (user, thread))
         db.commit()
     except MySQLdb.Error:

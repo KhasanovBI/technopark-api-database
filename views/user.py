@@ -20,7 +20,8 @@ def user_create():
     cursor = db.cursor()
     try:
         cursor.execute(
-            """INSERT INTO `users` (`email`, `username`, `name`, `about`, `isAnonymous`) VALUES (%s, %s, %s, %s, %s);""",
+            """INSERT INTO `users` (`email`, `username`, `name`, `about`, `isAnonymous`)
+VALUES (%s, %s, %s, %s, %s);""",
             (params['email'], params['username'], params['name'], params['about'], params['isAnonymous']))
         user_id = cursor.lastrowid
         db.commit()
@@ -223,7 +224,6 @@ WHERE `ff`.follower = %s"""
 
     cursor.close()
     db.close()
-    print(users)
     return jsonify(code=0, response=users)
 
 

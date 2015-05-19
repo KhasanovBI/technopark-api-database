@@ -18,7 +18,7 @@ def forum_create():
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
 
     try:
-        cursor.execute("""INSERT INTO `forums` (`name`, `short_name`, `user`) VALUE (%s, %s, %s);""",
+        cursor.execute("""INSERT INTO `forums` (`name`, `short_name`, `user`) VALUES (%s, %s, %s);""",
                        (name, short_name, user))
         db.commit()
 
@@ -164,8 +164,8 @@ def forum_list_users():
         code = 1
         return jsonify(code=code, response=RESPONSE_CODES[code])
 
-    query = """SELECT DISTINCT `users`.`id`, `username`, `name`, `about`, `isAnonymous`, `email` FROM `users`
-            INNER JOIN `posts` ON `user` = `email` WHERE `forum` = %s """
+    query = """SELECT `users`.`id`, `username`, `name`, `about`, `isAnonymous`, `email` FROM `users`
+            WHERE `users`.`email` IN (SELECT DISTINCT `user` FROM `posts` WHERE `forum` = %s)"""
     query_params = (forum,)
 
     if since_id is not None:
@@ -185,8 +185,8 @@ def forum_list_users():
     users = [i for i in cursor.fetchall()]
 
     for user in users:
-        following = list_following(cursor, user['id'])
-        followers = list_followers(cursor, user['id'])
+        following = list_following(cursor, user['email'])
+        followers = list_followers(cursor, user['email'])
 
         cursor.execute("""SELECT `thread` FROM `users_threads` WHERE `user` = %s;""", (user['email'],))
         threads = [i['thread'] for i in cursor.fetchall()]

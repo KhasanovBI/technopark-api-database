@@ -29,7 +29,7 @@ def post_create():
             """INSERT INTO `posts`
             (`parent`, `thread`, `isDeleted`, `isSpam`, `isEdited`, `isApproved`, `isHighlighted`, `forum`,
              `user`, `date`, `message`)
-            VALUE (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);""",
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);""",
             (parent, thread, is_deleted, is_spam, is_edited, is_post_approved, is_highlighted, forum, user, date,
              message))
 
@@ -150,11 +150,10 @@ def post_remove():
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
 
     try:
-        cursor.execute("""SELECT `thread` FROM `posts` WHERE `id` = %s;""", (post,))
-        thread = cursor.fetchone()
+        cursor.execute("""UPDATE `threads` SET `posts` = `posts` - 1 WHERE `id` =
+(SELECT `thread` FROM `posts` WHERE `id` = %s);""",
+                       (post,))
         cursor.execute("""UPDATE `posts` SET `isDeleted` = TRUE WHERE `id` = %s;""", (post,))
-        cursor.execute("""UPDATE `threads` SET `posts` = `posts` - 1 WHERE `id` = %s;""",
-                       (thread['thread'],))
         db.commit()
     except MySQLdb.Error:
         db.rollback()
@@ -173,11 +172,11 @@ def post_restore():
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
 
     try:
-        cursor.execute("""SELECT `thread` FROM `posts` WHERE `id` = %s;""", (post,))
-        thread = cursor.fetchone()
+        cursor.execute("""UPDATE `threads` SET `posts` = `posts` + 1 WHERE `id` =
+(SELECT `thread` FROM `posts` WHERE `id` = %s);""",
+                       (post,))
         cursor.execute("""UPDATE `posts` SET `isDeleted` = FALSE WHERE `id` = %s;""", (post,))
-        cursor.execute("""UPDATE `threads` SET `posts` = `posts` + 1 WHERE `id` = %s;""",
-                       (thread['thread'],))
+
         db.commit()
     except MySQLdb.Error:
         db.rollback()
@@ -197,7 +196,7 @@ def post_update():
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
 
     try:
-        cursor.execute("""UPDATE `posts` SET `message` = %s WHERE `id` = %s;""", (post, message))
+        cursor.execute("""UPDATE `posts` SET `message` = %s WHERE `id` = %s;""", (message, post))
         db.commit()
 
     except MySQLdb.Error:
