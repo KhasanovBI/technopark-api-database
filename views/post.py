@@ -1,6 +1,6 @@
 import MySQLdb
 from flask import Blueprint, request, jsonify
-from settings import BASE_URL, RESPONSE_CODES, request_db
+from settings import BASE_URL, RESPONSE_CODES, db
 from utils import queries
 
 post_API = Blueprint('post_API', __name__, url_prefix=BASE_URL + 'post/')
@@ -20,7 +20,6 @@ def post_create():
     date = request.json.get('date', None)
     message = request.json.get('message', None)
 
-    db = request_db()
     cursor = db.cursor()
 
     post_id = 0
@@ -42,7 +41,6 @@ def post_create():
         db.rollback()
 
     cursor.close()
-    db.close()
 
     post = {
         "date": date,
@@ -76,7 +74,6 @@ def post_details():
         code = 1
         return jsonify(code=code, response=RESPONSE_CODES[code])
 
-    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
 
     post = queries.post_details(cursor, post_id)
@@ -94,7 +91,6 @@ def post_details():
         post.update({'thread': thread})
 
     cursor.close()
-    db.close()
     return jsonify(code=0, response=post)
 
 
@@ -127,13 +123,11 @@ def post_list():
         query += "LIMIT %s;"
         query_params += (int(limit),)
 
-    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(query, query_params)
 
     posts = [i for i in cursor.fetchall()]
     cursor.close()
-    db.close()
 
     for post in posts:
         post.update({'date': str(post['date'])})
@@ -146,7 +140,6 @@ def post_remove():
     post = request.json.get('post', None)
     post = int(post)
 
-    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
 
     try:
@@ -159,7 +152,6 @@ def post_remove():
         db.rollback()
 
     cursor.close()
-    db.close()
     return jsonify(code=0, response={'post': post})
 
 
@@ -168,7 +160,6 @@ def post_restore():
     post = request.json.get('post', None)
     post = int(post)
 
-    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
 
     try:
@@ -182,7 +173,6 @@ def post_restore():
         db.rollback()
 
     cursor.close()
-    db.close()
     return jsonify(code=0, response={'post': post})
 
 
@@ -192,7 +182,6 @@ def post_update():
     post = request.json.get('post', None)
     post = int(post)
 
-    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
 
     try:
@@ -204,7 +193,6 @@ def post_update():
 
     post = queries.post_details(cursor, post)
     cursor.close()
-    db.close()
     return jsonify(code=0, response=post)
 
 
@@ -214,7 +202,6 @@ def post_vote():
     post = request.json.get('post', None)
     post = int(post)
 
-    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
 
     try:
@@ -232,5 +219,4 @@ def post_vote():
     post = queries.post_details(cursor, post)
 
     cursor.close()
-    db.close()
     return jsonify(code=0, response=post)

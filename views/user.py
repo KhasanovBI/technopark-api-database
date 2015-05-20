@@ -1,6 +1,6 @@
 import MySQLdb
 from flask import Blueprint, request, jsonify
-from settings import BASE_URL, RESPONSE_CODES, request_db
+from settings import BASE_URL, RESPONSE_CODES, db
 from utils import queries
 from utils.queries import list_followers, list_following
 from utils.helper import extract_params
@@ -16,7 +16,6 @@ def user_create():
     if params['isAnonymous'] is None:
         params['isAnonymous'] = False
 
-    db = request_db()
     cursor = db.cursor()
     try:
         cursor.execute(
@@ -31,8 +30,6 @@ VALUES (%s, %s, %s, %s, %s);""",
         code = 5
         return jsonify(code=code, response=RESPONSE_CODES[code])
     cursor.close()
-    db.close()
-
     user = params
     user.update({'id': user_id})
     return jsonify(code=0, response=user)
@@ -46,11 +43,9 @@ def user_details():
         code = 1
         return jsonify(code=code, response=RESPONSE_CODES[code])
 
-    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
     user = queries.user_details(cursor, email)
     cursor.close()
-    db.close()
     return jsonify(code=0, response=user)
 
 
@@ -78,14 +73,12 @@ def user_list_posts():
         query += "LIMIT %s;"
         query_params += (int(limit),)
 
-    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(query, query_params)
 
     posts = [i for i in cursor.fetchall()]
 
     cursor.close()
-    db.close()
 
     for post in posts:
         post.update({'date': str(post['date'])})
@@ -99,7 +92,6 @@ def user_update_profile():
     about = request.json.get('about', None)
     name = request.json.get('name', None)
 
-    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
     try:
         cursor.execute("""UPDATE `users` SET `about` = %s, `name` = %s WHERE `email` = %s;""", (about, name, user))
@@ -109,7 +101,6 @@ def user_update_profile():
 
     user = queries.user_details(cursor, user)
     cursor.close()
-    db.close()
 
     return jsonify(code=0, response=user)
 
@@ -119,7 +110,6 @@ def user_follow():
     follower = request.json.get('follower', None)
     followee = request.json.get('followee', None)
 
-    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
 
     try:
@@ -132,7 +122,6 @@ VALUES (%s, %s);""", (follower, followee))
 
     user = queries.user_details(cursor, follower)
     cursor.close()
-    db.close()
     return jsonify(code=0, response=user)
 
 
@@ -161,7 +150,6 @@ WHERE `ff`.followee = %s"""
     if limit is not None:
         query += "LIMIT %s;"
         query_params += (int(limit),)
-    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(query, query_params)
 
@@ -177,7 +165,6 @@ WHERE `ff`.followee = %s"""
         user.update({'following': following, 'followers': followers, 'subscriptions': threads})
 
     cursor.close()
-    db.close()
     return jsonify(code=0, response=users)
 
 
@@ -207,7 +194,6 @@ WHERE `ff`.follower = %s"""
         query += "LIMIT %s;"
         query_params += (int(limit),)
 
-    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(query, query_params)
 
@@ -223,7 +209,6 @@ WHERE `ff`.follower = %s"""
         user.update({'following': following, 'followers': followers, 'subscriptions': threads})
 
     cursor.close()
-    db.close()
     return jsonify(code=0, response=users)
 
 
@@ -232,7 +217,6 @@ def user_unfollow():
     follower = request.json.get('follower', None)
     followee = request.json.get('followee', None)
 
-    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
     try:
         cursor.execute("""DELETE FROM `follower_followee` WHERE `follower` = %s AND `followee` = %s;""",
@@ -243,5 +227,4 @@ def user_unfollow():
 
     user = queries.user_details(cursor, follower)
     cursor.close()
-    db.close()
     return jsonify(code=0, response=user)

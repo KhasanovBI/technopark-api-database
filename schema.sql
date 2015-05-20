@@ -24,8 +24,7 @@ CREATE TABLE forums (
   name       CHAR(35)       NOT NULL UNIQUE,
   short_name CHAR(35)       NOT NULL UNIQUE,
   user       CHAR(25)       NOT NULL,
-  PRIMARY KEY (id),
-  KEY (short_name)
+  PRIMARY KEY (id)
 );
 
 DROP TABLE IF EXISTS threads;
@@ -67,6 +66,7 @@ CREATE TABLE posts (
   date          DATETIME           NOT NULL,
   PRIMARY KEY (id),
   KEY user_date (user, date),
+  KEY user_forum (user, forum),
   KEY forum_date (forum, date),
   KEY thread_date (thread, date)
 );

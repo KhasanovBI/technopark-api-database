@@ -1,6 +1,6 @@
 import MySQLdb
 from flask import Blueprint, request, jsonify
-from settings import BASE_URL, RESPONSE_CODES, request_db
+from settings import BASE_URL, RESPONSE_CODES, db
 from utils import queries
 
 
@@ -19,7 +19,6 @@ def thread_create():
     slug = request.json.get('slug', None)
 
     thread_id = 0
-    db = request_db()
     cursor = db.cursor()
     try:
         cursor.execute("""INSERT INTO `threads`
@@ -35,7 +34,6 @@ def thread_create():
         db.rollback()
 
     cursor.close()
-    db.close()
 
     thread = {
         "date": date,
@@ -64,7 +62,6 @@ def thread_details():
     if thread_id is None or thread_id < 1:
         code = 1
         return jsonify(code=code, response=RESPONSE_CODES[code])
-    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
 
     thread = queries.thread_details(cursor, thread_id)
@@ -78,7 +75,6 @@ def thread_details():
         thread.update({'forum': forum})
 
     cursor.close()
-    db.close()
 
     return jsonify(code=0, response=thread)
 
@@ -112,7 +108,6 @@ def thread_list():
         query += "LIMIT %s;"
         query_params += (int(limit),)
 
-    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(query, query_params)
 
@@ -122,7 +117,6 @@ def thread_list():
         thread.update({'date': str(thread['date'])})
 
     cursor.close()
-    db.close()
     return jsonify(code=0, response=threads)
 
 
@@ -150,7 +144,6 @@ def thread_list_posts():
         query += "LIMIT %s;"
         query_params += (int(limit),)
 
-    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(query, query_params)
 
@@ -160,7 +153,6 @@ def thread_list_posts():
         post.update({'date': str(post['date'])})
 
     cursor.close()
-    db.close()
     return jsonify(code=0, response=posts)
 
 
@@ -169,7 +161,6 @@ def thread_remove():
     thread = request.json.get('thread')
     thread = int(thread)
 
-    db = request_db()
     cursor = db.cursor()
 
     try:
@@ -181,7 +172,6 @@ def thread_remove():
         db.rollback()
 
     cursor.close()
-    db.close()
     return jsonify(code=0, response={'thread': thread})
 
 
@@ -190,7 +180,6 @@ def thread_restore():
     thread = request.json.get('thread', None)
     thread = int(thread)
 
-    db = request_db()
     cursor = db.cursor()
     try:
         count = cursor.execute("""UPDATE `posts` SET `isDeleted` = FALSE WHERE `thread` = %s;""", (thread,))
@@ -201,7 +190,6 @@ def thread_restore():
         db.rollback()
 
     cursor.close()
-    db.close()
     return jsonify(code=0, response={'thread': thread})
 
 
@@ -210,7 +198,6 @@ def thread_close():
     thread = request.json.get('thread', None)
     thread = int(thread)
 
-    db = request_db()
     cursor = db.cursor()
     try:
         cursor.execute("""UPDATE `threads` SET `isClosed` = TRUE WHERE `id` = %s;""", (thread,))
@@ -219,7 +206,6 @@ def thread_close():
         db.rollback()
 
     cursor.close()
-    db.close()
     return jsonify(code=0, response={'thread': thread})
 
 
@@ -228,7 +214,6 @@ def thread_open():
     thread = request.json.get('thread', None)
     thread = int(thread)
 
-    db = request_db()
     cursor = db.cursor()
     try:
         cursor.execute("""UPDATE `threads` SET `isClosed` = FALSE WHERE `id` = %s;""", (thread,))
@@ -237,7 +222,6 @@ def thread_open():
         db.rollback()
 
     cursor.close()
-    db.close()
     return jsonify(code=0, response={'thread': thread})
 
 
@@ -248,7 +232,6 @@ def thread_update():
     thread = request.json.get('thread', None)
     thread = int(thread)
 
-    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
     try:
         cursor.execute("""UPDATE `threads` SET `message` = %s, `slug` = %s WHERE `id` = %s;""",
@@ -260,7 +243,6 @@ def thread_update():
     thread = queries.thread_details(cursor, thread)
 
     cursor.close()
-    db.close()
     return jsonify(code=0, response={'thread': thread})
 
 
@@ -270,7 +252,6 @@ def thread_vote():
     thread = request.json.get('thread', None)
     thread = int(thread)
 
-    db = request_db()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
     try:
         if vote == 1:
@@ -288,7 +269,6 @@ def thread_vote():
     thread = queries.thread_details(cursor, thread)
 
     cursor.close()
-    db.close()
     return jsonify(code=0, response=thread)
 
 
@@ -297,7 +277,6 @@ def thread_subscribe():
     user = request.json.get('user', None)
     thread = request.json.get('thread', None)
 
-    db = request_db()
     cursor = db.cursor()
 
     try:
@@ -308,7 +287,6 @@ def thread_subscribe():
         db.rollback()
 
     cursor.close()
-    db.close()
     return jsonify(code=0, response={'thread': thread, 'user': user})
 
 
@@ -316,7 +294,6 @@ def thread_subscribe():
 def thread_unsubscribe():
     user = request.json.get('user', None)
     thread = request.json.get('thread', None)
-    db = request_db()
     cursor = db.cursor()
 
     try:
@@ -326,5 +303,4 @@ def thread_unsubscribe():
         db.rollback()
 
     cursor.close()
-    db.close()
     return jsonify(code=0, response={'thread': thread, 'user': user})
