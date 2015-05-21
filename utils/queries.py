@@ -1,4 +1,4 @@
-from settings import sqlSchema, db
+from settings import sqlSchema, get_connection
 
 
 def list_following(cursor, email):
@@ -62,6 +62,7 @@ def post_details(cursor, post_id):
 
 def init_tables():
     query = ''
+    db = get_connection()
     cursor = db.cursor()
     f = open(sqlSchema, 'r')
     for line in f:
@@ -72,3 +73,4 @@ def init_tables():
             query = ''
     f.close()
     cursor.close()
+    db.close()

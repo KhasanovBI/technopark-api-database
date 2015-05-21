@@ -13,5 +13,6 @@ try:
 except ImportError:
     pass
 
-db = MySQLdb.connect(host=DATABASE['HOST'], user=DATABASE['USER'], passwd=DATABASE['PASSWORD'], db=DATABASE['NAME'],
-                     charset=DATABASE['CHARSET'])
+def get_connection():
+    return MySQLdb.connect(host=DATABASE['HOST'], user=DATABASE['USER'], passwd=DATABASE['PASSWORD'],
+                           db=DATABASE['NAME'], charset=DATABASE['CHARSET'])

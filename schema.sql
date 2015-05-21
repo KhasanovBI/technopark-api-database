@@ -24,7 +24,8 @@ CREATE TABLE forums (
   name       CHAR(35)       NOT NULL UNIQUE,
   short_name CHAR(35)       NOT NULL UNIQUE,
   user       CHAR(25)       NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY (short_name, user, id, name)
 );
 
 DROP TABLE IF EXISTS threads;
