@@ -156,12 +156,12 @@ def forum_list_users():
         code = 1
         return jsonify(code=code, response=RESPONSE_CODES[code])
 
-    query = """SELECT `users`.`id`, `username`, `name`, `about`, `isAnonymous`, `email` FROM `users`
-            WHERE `users`.`email` IN (SELECT DISTINCT `user` FROM `posts` WHERE `forum` = %s)"""
+    query = """SELECT * FROM `users`
+            WHERE `email` IN (SELECT DISTINCT `user` FROM `posts` WHERE `forum` = %s)"""
     query_params = (forum,)
 
     if since_id is not None:
-        query += "AND `users`.`id` >= %s "
+        query += "AND `id` >= %s "
         query_params += (int(since_id),)
 
     query += " ORDER BY `name` " + order + " "
