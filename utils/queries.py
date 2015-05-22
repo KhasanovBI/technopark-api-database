@@ -1,5 +1,5 @@
-from settings import sqlSchema, get_connection
-
+from settings import sqlSchema
+from helper import get_connection
 
 def list_following(cursor, email):
     cursor.execute("""SELECT `followee` FROM `follower_followee` WHERE `follower` = %s""", (email,))

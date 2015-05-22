@@ -1,6 +1,6 @@
-from flask import Blueprint, Response
-from settings import BASE_URL, RESPONSE_CODES, get_connection
-import ujson
+from flask import Blueprint
+from settings import BASE_URL, RESPONSE_CODES
+from utils.helper import jsonify, get_connection
 from utils.queries import init_tables
 
 general_API = Blueprint('general_API', __name__, url_prefix=BASE_URL)
@@ -10,7 +10,7 @@ general_API = Blueprint('general_API', __name__, url_prefix=BASE_URL)
 def clear():
     init_tables()
     code = 0
-    return Response(mimetype='application/json', response=ujson.dumps({'code':code, 'response':RESPONSE_CODES[code]}))
+    return jsonify(code=code, response=RESPONSE_CODES[code])
 
 
 @general_API.route('status/')
@@ -25,4 +25,4 @@ def status():
         response[table] = cursor.fetchone()[0]
     cursor.close()
     db.close()
-    return Response(mimetype='application/json', response=ujson.dumps({'code':0, 'response':response}))
+    return jsonify(code=0, response=response)

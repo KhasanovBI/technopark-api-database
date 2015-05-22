@@ -1,10 +1,8 @@
 import MySQLdb
-import ujson
-from flask import Blueprint, request, Response
-from settings import BASE_URL, RESPONSE_CODES, get_connection
+from flask import Blueprint, request
+from settings import BASE_URL, RESPONSE_CODES
 from utils import queries
-from utils.queries import list_following
-from utils.queries import list_followers
+from utils.helper import jsonify, get_connection
 
 forum_API = Blueprint('forum_API', __name__, url_prefix=BASE_URL + 'forum/')
 
@@ -29,7 +27,7 @@ def forum_create():
 
     cursor.close()
     db.close()
-    return Response(mimetype='application/json', response=ujson.dumps({'code': 0, 'response': forum}))
+    return jsonify(code=0, response=forum)
 
 
 @forum_API.route('details/')
@@ -39,9 +37,7 @@ def forum_details():
 
     if short_name is None:
         code = 1
-        return Response(mimetype='application/json', response=ujson.dumps(
-            {'code': code, 'response': RESPONSE_CODES[code]}
-        ))
+        return jsonify(code=code, response=RESPONSE_CODES[code])
     db = get_connection()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
 
@@ -53,7 +49,7 @@ def forum_details():
 
     cursor.close()
     db.close()
-    return Response(mimetype='application/json', response=ujson.dumps({'code': 0, 'response': forum}))
+    return jsonify(code=0, response=forum)
 
 
 @forum_API.route('listPosts/')
@@ -66,9 +62,7 @@ def forum_list_posts():
 
     if forum is None:
         code = 1
-        return Response(mimetype='application/json', response=ujson.dumps(
-            {'code': code, 'response': RESPONSE_CODES[code]}
-        ))
+        return jsonify(code=code, response=RESPONSE_CODES[code])
 
     query = """SELECT * FROM `posts` WHERE `forum` = %s """
     query_params = (forum,)
@@ -106,7 +100,7 @@ def forum_list_posts():
 
     cursor.close()
     db.close()
-    return Response(mimetype='application/json', response=ujson.dumps({'code': 0, 'response': posts}))
+    return jsonify(code=0, response=posts)
 
 
 @forum_API.route('listThreads/')
@@ -119,9 +113,7 @@ def forum_list_threads():
 
     if forum is None:
         code = 1
-        return Response(mimetype='application/json', response=ujson.dumps(
-            {'code': code, 'response': RESPONSE_CODES[code]}
-        ))
+        return jsonify(code=code, response=RESPONSE_CODES[code])
 
     query = """SELECT * FROM `threads` WHERE `forum` = %s"""
     query_params = (forum,)
@@ -155,7 +147,7 @@ def forum_list_threads():
 
     cursor.close()
     db.close()
-    return Response(mimetype='application/json', response=ujson.dumps({'code': 0, 'response': threads}))
+    return jsonify(code=0, response=threads)
 
 
 @forum_API.route('listUsers/')
@@ -167,9 +159,7 @@ def forum_list_users():
 
     if forum is None:
         code = 1
-        return Response(mimetype='application/json', response=ujson.dumps(
-            {'code': code, 'response': RESPONSE_CODES[code]}
-        ))
+        return jsonify(code=code, response=RESPONSE_CODES[code])
 
     query = """SELECT * FROM `users`
             WHERE `email` IN (SELECT DISTINCT `user` FROM `posts` WHERE `forum` = %s)"""
@@ -192,8 +182,8 @@ def forum_list_users():
     users = [i for i in cursor.fetchall()]
 
     for user in users:
-        following = list_following(cursor, user['email'])
-        followers = list_followers(cursor, user['email'])
+        following = queries.list_following(cursor, user['email'])
+        followers = queries.list_followers(cursor, user['email'])
 
         cursor.execute("""SELECT `thread` FROM `users_threads` WHERE `user` = %s;""", (user['email'],))
         threads = [i['thread'] for i in cursor.fetchall()]
@@ -202,4 +192,4 @@ def forum_list_users():
 
     cursor.close()
     db.close()
-    return Response(mimetype='application/json', response=ujson.dumps({'code': 0, 'response': users}))
+    return jsonify(code=0, response=users)

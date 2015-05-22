@@ -1,4 +1,3 @@
-import MySQLdb
 import os
 BASE_URL = '/db/api/'
 sqlSchema = os.path.join(os.path.dirname(__file__), 'schema.sql')
@@ -13,6 +12,3 @@ try:
 except ImportError:
     pass
 
-def get_connection():
-    return MySQLdb.connect(host=DATABASE['HOST'], user=DATABASE['USER'], passwd=DATABASE['PASSWORD'],
-                           db=DATABASE['NAME'], charset=DATABASE['CHARSET'])

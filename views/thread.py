@@ -1,8 +1,8 @@
 import MySQLdb
-import ujson
-from flask import Blueprint, request, Response
-from settings import BASE_URL, RESPONSE_CODES, get_connection
+from flask import Blueprint, request
+from settings import BASE_URL, RESPONSE_CODES
 from utils import queries
+from utils.helper import jsonify, get_connection
 
 
 thread_API = Blueprint('thread_API', __name__, url_prefix=BASE_URL + 'thread/')
@@ -50,7 +50,7 @@ def thread_create():
         "title": title,
         "user": user
     }
-    return Response(mimetype='application/json', response=ujson.dumps({'code': 0, 'response': thread}))
+    return jsonify(code=0, response=thread)
 
 
 @thread_API.route('details/')
@@ -61,15 +61,11 @@ def thread_details():
 
     if 'thread' in related:
         code = 3
-        return Response(mimetype='application/json', response=ujson.dumps(
-            {'code': code, 'response': RESPONSE_CODES[code]}
-        ))
+        return jsonify(code=code, response=RESPONSE_CODES[code])
 
     if thread_id is None or thread_id < 1:
         code = 1
-        return Response(mimetype='application/json', response=ujson.dumps(
-            {'code': code, 'response': RESPONSE_CODES[code]}
-        ))
+        return jsonify(code=code, response=RESPONSE_CODES[code])
 
     db = get_connection()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
@@ -86,7 +82,7 @@ def thread_details():
 
     cursor.close()
     db.close()
-    return Response(mimetype='application/json', response=ujson.dumps({'code': 0, 'response': thread}))
+    return jsonify(code=0, response=thread)
 
 
 @thread_API.route('list/')
@@ -99,9 +95,7 @@ def thread_list():
 
     if user is None and forum is None:
         code = 1
-        return Response(mimetype='application/json', response=ujson.dumps(
-            {'code': code, 'response': RESPONSE_CODES[code]}
-        ))
+        return jsonify(code=code, response=RESPONSE_CODES[code])
 
     if forum is not None:
         query = """SELECT * FROM `threads` WHERE `forum` = %s """
@@ -131,7 +125,7 @@ def thread_list():
 
     cursor.close()
     db.close()
-    return Response(mimetype='application/json', response=ujson.dumps({'code': 0, 'response': threads}))
+    return jsonify(code=0, response=threads)
 
 
 @thread_API.route('listPosts/')
@@ -143,9 +137,7 @@ def thread_list_posts():
 
     if thread is None:
         code = 1
-        return Response(mimetype='application/json', response=ujson.dumps(
-            {'code': code, 'response': RESPONSE_CODES[code]}
-        ))
+        return jsonify(code=code, response=RESPONSE_CODES[code])
 
     query = """SELECT * FROM `posts` WHERE `thread` = %s """
     query_params = (int(thread),)
@@ -171,7 +163,7 @@ def thread_list_posts():
 
     cursor.close()
     db.close()
-    return Response(mimetype='application/json', response=ujson.dumps({'code': 0, 'response': posts}))
+    return jsonify(code=0, response=posts)
 
 
 @thread_API.route('remove/', methods=['POST'])
@@ -192,7 +184,7 @@ def thread_remove():
 
     cursor.close()
     db.close()
-    return Response(mimetype='application/json', response=ujson.dumps({'code': 0, 'response': {'thread': thread}}))
+    return jsonify(code=0, response={'thread': thread})
 
 
 @thread_API.route('restore/', methods=['POST'])
@@ -212,7 +204,7 @@ def thread_restore():
 
     cursor.close()
     db.close()
-    return Response(mimetype='application/json', response=ujson.dumps({'code': 0, 'response': {'thread': thread}}))
+    return jsonify(code=0, response={'thread': thread})
 
 
 @thread_API.route('close/', methods=['POST'])
@@ -230,7 +222,7 @@ def thread_close():
 
     cursor.close()
     db.close()
-    return Response(mimetype='application/json', response=ujson.dumps({'code': 0, 'response': {'thread': thread}}))
+    return jsonify(code=0, response={'thread': thread})
 
 
 @thread_API.route('open/', methods=['POST'])
@@ -248,7 +240,7 @@ def thread_open():
 
     cursor.close()
     db.close()
-    return Response(mimetype='application/json', response=ujson.dumps({'code': 0, 'response': {'thread': thread}}))
+    return jsonify(code=0, response={'thread': thread})
 
 
 @thread_API.route('update/', methods=['POST'])
@@ -271,7 +263,7 @@ def thread_update():
 
     cursor.close()
     db.close()
-    return Response(mimetype='application/json', response=ujson.dumps({'code': 0, 'response': {'thread': thread}}))
+    return jsonify(code=0, response={'thread': thread})
 
 
 @thread_API.route('vote/', methods=['POST'])
@@ -299,7 +291,7 @@ def thread_vote():
 
     cursor.close()
     db.close()
-    return Response(mimetype='application/json', response=ujson.dumps({'code': 0, 'response': {'thread': thread}}))
+    return jsonify(code=0, response=thread)
 
 
 @thread_API.route('subscribe/', methods=['POST'])
@@ -319,9 +311,7 @@ def thread_subscribe():
 
     cursor.close()
     db.close()
-    return Response(mimetype='application/json', response=ujson.dumps(
-        {'code': 0, 'response': {'thread': thread, 'user': user}}
-    ))
+    return jsonify(code=0, response={'thread': thread, 'user': user})
 
 
 @thread_API.route('unsubscribe/', methods=['POST'])
@@ -340,6 +330,4 @@ def thread_unsubscribe():
 
     cursor.close()
     db.close()
-    return Response(mimetype='application/json', response=ujson.dumps(
-        {'code': 0, 'response': {'thread': thread, 'user': user}}
-    ))
+    return jsonify(code=0, response={'thread': thread, 'user': user})
