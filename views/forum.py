@@ -2,16 +2,16 @@ import MySQLdb
 from flask import Blueprint, request
 from settings import BASE_URL, RESPONSE_CODES
 from utils import queries
-from utils.helper import jsonify, get_connection
+from utils.helper import jsonify, get_connection, parse_json
 
 forum_API = Blueprint('forum_API', __name__, url_prefix=BASE_URL + 'forum/')
 
 
 @forum_API.route('create/', methods=['POST'])
 def forum_create():
-    name = request.json.get('name', None)
-    short_name = request.json.get('short_name', None)
-    user = request.json.get('user', None)
+    name = parse_json(request).get('name', None)
+    short_name = parse_json(request).get('short_name', None)
+    user = parse_json(request).get('user', None)
     db = get_connection()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
 

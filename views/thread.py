@@ -2,7 +2,7 @@ import MySQLdb
 from flask import Blueprint, request
 from settings import BASE_URL, RESPONSE_CODES
 from utils import queries
-from utils.helper import jsonify, get_connection
+from utils.helper import jsonify, get_connection, parse_json
 
 
 thread_API = Blueprint('thread_API', __name__, url_prefix=BASE_URL + 'thread/')
@@ -10,14 +10,14 @@ thread_API = Blueprint('thread_API', __name__, url_prefix=BASE_URL + 'thread/')
 
 @thread_API.route('create/', methods=['POST'])
 def thread_create():
-    is_deleted = request.json.get('isDeleted', False)
-    forum = request.json.get('forum', None)
-    title = request.json.get('title', None)
-    is_closed = request.json.get('isClosed', False)
-    user = request.json.get('user', None)
-    date = request.json.get('date', None)
-    message = request.json.get('message', None)
-    slug = request.json.get('slug', None)
+    is_deleted = parse_json(request).get('isDeleted', False)
+    forum = parse_json(request).get('forum', None)
+    title = parse_json(request).get('title', None)
+    is_closed = parse_json(request).get('isClosed', False)
+    user = parse_json(request).get('user', None)
+    date = parse_json(request).get('date', None)
+    message = parse_json(request).get('message', None)
+    slug = parse_json(request).get('slug', None)
 
     thread_id = 0
 
@@ -168,7 +168,7 @@ def thread_list_posts():
 
 @thread_API.route('remove/', methods=['POST'])
 def thread_remove():
-    thread = request.json.get('thread')
+    thread = parse_json(request).get('thread')
     thread = int(thread)
 
     db = get_connection()
@@ -189,7 +189,7 @@ def thread_remove():
 
 @thread_API.route('restore/', methods=['POST'])
 def thread_restore():
-    thread = request.json.get('thread', None)
+    thread = parse_json(request).get('thread', None)
     thread = int(thread)
 
     db = get_connection()
@@ -209,7 +209,7 @@ def thread_restore():
 
 @thread_API.route('close/', methods=['POST'])
 def thread_close():
-    thread = request.json.get('thread', None)
+    thread = parse_json(request).get('thread', None)
     thread = int(thread)
 
     db = get_connection()
@@ -227,7 +227,7 @@ def thread_close():
 
 @thread_API.route('open/', methods=['POST'])
 def thread_open():
-    thread = request.json.get('thread', None)
+    thread = parse_json(request).get('thread', None)
     thread = int(thread)
 
     db = get_connection()
@@ -245,9 +245,9 @@ def thread_open():
 
 @thread_API.route('update/', methods=['POST'])
 def thread_update():
-    message = request.json.get('message', None)
-    slug = request.json.get('slug', None)
-    thread = request.json.get('thread', None)
+    message = parse_json(request).get('message', None)
+    slug = parse_json(request).get('slug', None)
+    thread = parse_json(request).get('thread', None)
     thread = int(thread)
 
     db = get_connection()
@@ -268,8 +268,8 @@ def thread_update():
 
 @thread_API.route('vote/', methods=['POST'])
 def thread_vote():
-    vote = request.json.get('vote', None)
-    thread = request.json.get('thread', None)
+    vote = parse_json(request).get('vote', None)
+    thread = parse_json(request).get('thread', None)
     thread = int(thread)
 
     db = get_connection()
@@ -296,8 +296,8 @@ def thread_vote():
 
 @thread_API.route('subscribe/', methods=['POST'])
 def thread_subscribe():
-    user = request.json.get('user', None)
-    thread = request.json.get('thread', None)
+    user = parse_json(request).get('user', None)
+    thread = parse_json(request).get('thread', None)
 
     db = get_connection()
     cursor = db.cursor()
@@ -316,8 +316,8 @@ def thread_subscribe():
 
 @thread_API.route('unsubscribe/', methods=['POST'])
 def thread_unsubscribe():
-    user = request.json.get('user', None)
-    thread = request.json.get('thread', None)
+    user = parse_json(request).get('user', None)
+    thread = parse_json(request).get('thread', None)
 
     db = get_connection()
     cursor = db.cursor()

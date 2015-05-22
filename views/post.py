@@ -2,24 +2,24 @@ import MySQLdb
 from flask import Blueprint, request
 from settings import BASE_URL, RESPONSE_CODES
 from utils import queries
-from utils.helper import jsonify, get_connection
+from utils.helper import jsonify, get_connection, parse_json
 
 post_API = Blueprint('post_API', __name__, url_prefix=BASE_URL + 'post/')
 
 
 @post_API.route('create/', methods=['POST'])
 def post_create():
-    parent = request.json.get('parent', None)
-    thread = request.json.get('thread', None)
-    is_deleted = request.json.get('isDeleted', False)
-    is_spam = request.json.get('isSpam', False)
-    is_edited = request.json.get('isEdited', False)
-    is_post_approved = request.json.get('isApproved', False)
-    is_highlighted = request.json.get('isHighlighted', False)
-    forum = request.json.get('forum', None)
-    user = request.json.get('user', None)
-    date = request.json.get('date', None)
-    message = request.json.get('message', None)
+    parent = parse_json(request).get('parent', None)
+    thread = parse_json(request).get('thread', None)
+    is_deleted = parse_json(request).get('isDeleted', False)
+    is_spam = parse_json(request).get('isSpam', False)
+    is_edited = parse_json(request).get('isEdited', False)
+    is_post_approved = parse_json(request).get('isApproved', False)
+    is_highlighted = parse_json(request).get('isHighlighted', False)
+    forum = parse_json(request).get('forum', None)
+    user = parse_json(request).get('user', None)
+    date = parse_json(request).get('date', None)
+    message = parse_json(request).get('message', None)
 
     db = get_connection()
     cursor = db.cursor()
@@ -142,7 +142,7 @@ def post_list():
 
 @post_API.route('remove/', methods=['POST'])
 def post_remove():
-    post = request.json.get('post', None)
+    post = parse_json(request).get('post', None)
     post = int(post)
 
     db = get_connection()
@@ -164,7 +164,7 @@ def post_remove():
 
 @post_API.route('restore/', methods=['POST'])
 def post_restore():
-    post = request.json.get('post', None)
+    post = parse_json(request).get('post', None)
     post = int(post)
 
     db = get_connection()
@@ -187,8 +187,8 @@ def post_restore():
 
 @post_API.route('update/', methods=['POST'])
 def post_update():
-    message = request.json.get('message', None)
-    post = request.json.get('post', None)
+    message = parse_json(request).get('message', None)
+    post = parse_json(request).get('post', None)
     post = int(post)
 
     db = get_connection()
@@ -209,8 +209,8 @@ def post_update():
 
 @post_API.route('vote/', methods=['POST'])
 def post_vote():
-    vote = request.json.get('vote', None)
-    post = request.json.get('post', None)
+    vote = parse_json(request).get('vote', None)
+    post = parse_json(request).get('post', None)
     post = int(post)
 
     db = get_connection()

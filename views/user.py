@@ -3,7 +3,7 @@ from flask import Blueprint, request
 from settings import BASE_URL, RESPONSE_CODES
 from utils import queries
 from utils.queries import list_followers, list_following
-from utils.helper import extract_params, get_connection, jsonify
+from utils.helper import extract_params, get_connection, jsonify, parse_json
 
 user_API = Blueprint('user_API', __name__, url_prefix=BASE_URL + 'user/')
 
@@ -12,7 +12,7 @@ user_API = Blueprint('user_API', __name__, url_prefix=BASE_URL + 'user/')
 def user_create():
 
     params = ['email', 'username', 'name', 'about', 'isAnonymous']
-    params = extract_params(request.json, params)
+    params = extract_params(parse_json(request), params)
     if params['isAnonymous'] is None:
         params['isAnonymous'] = False
 
@@ -94,9 +94,9 @@ def user_list_posts():
 
 @user_API.route('updateProfile/', methods=['POST'])
 def user_update_profile():
-    user = request.json.get('user', None)
-    about = request.json.get('about', None)
-    name = request.json.get('name', None)
+    user = parse_json(request).get('user', None)
+    about = parse_json(request).get('about', None)
+    name = parse_json(request).get('name', None)
 
     db = get_connection()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
@@ -115,8 +115,8 @@ def user_update_profile():
 
 @user_API.route('follow/', methods=['POST'])
 def user_follow():
-    follower = request.json.get('follower', None)
-    followee = request.json.get('followee', None)
+    follower = parse_json(request).get('follower', None)
+    followee = parse_json(request).get('followee', None)
 
     db = get_connection()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
@@ -229,8 +229,8 @@ WHERE `ff`.follower = %s"""
 
 @user_API.route('unfollow/', methods=['POST'])
 def user_unfollow():
-    follower = request.json.get('follower', None)
-    followee = request.json.get('followee', None)
+    follower = parse_json(request).get('follower', None)
+    followee = parse_json(request).get('followee', None)
 
     db = get_connection()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
