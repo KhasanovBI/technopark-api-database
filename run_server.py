@@ -15,4 +15,4 @@ app.register_blueprint(user_API)
 app.register_blueprint(thread_API)
 
 if __name__ == "__main__":
-    app.run(port=4242)
+    app.run(port=4242, debug=True)

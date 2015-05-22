@@ -3,5 +3,5 @@ DATABASE = {
     'HOST': 'localhost',
     'USER': 'tp_user',
     'PASSWORD': '111111',
-    'CHARSET': 'latin1'
+    'CHARSET': 'utf8'
 }
