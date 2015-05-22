@@ -1,5 +1,6 @@
 import MySQLdb
-from flask import Blueprint, request, jsonify
+import ujson
+from flask import Blueprint, request, Response
 from settings import BASE_URL, RESPONSE_CODES, get_connection
 from utils import queries
 
@@ -57,7 +58,7 @@ def post_create():
         "thread": thread,
         "user": user
     }
-    return jsonify(code=0, response=post)
+    return Response(mimetype='application/json', response=ujson.dumps({'code': 0, 'response': post}))
 
 
 @post_API.route('details/')
@@ -67,13 +68,17 @@ def post_details():
 
     if post_id is None:
         code = 1
-        return jsonify(code=code, response=RESPONSE_CODES[code])
+        return Response(mimetype='application/json', response=ujson.dumps(
+            {'code': code, 'response': RESPONSE_CODES[code]}
+        ))
 
     post_id = int(post_id)
 
     if post_id < 1:
         code = 1
-        return jsonify(code=code, response=RESPONSE_CODES[code])
+        return Response(mimetype='application/json', response=ujson.dumps(
+            {'code': code, 'response': RESPONSE_CODES[code]}
+        ))
 
     db = get_connection()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
@@ -94,7 +99,7 @@ def post_details():
 
     cursor.close()
     db.close()
-    return jsonify(code=0, response=post)
+    return Response(mimetype='application/json', response=ujson.dumps({'code': 0, 'response': post}))
 
 
 @post_API.route('list/')
@@ -107,7 +112,9 @@ def post_list():
 
     if thread is None and forum is None:
         code = 1
-        return jsonify(code=code, response=RESPONSE_CODES[code])
+        return Response(mimetype='application/json', response=ujson.dumps(
+            {'code': code, 'response': RESPONSE_CODES[code]}
+        ))
 
     if forum is not None:
         query = """SELECT * FROM `posts` WHERE `forum` = %s """
@@ -136,7 +143,7 @@ def post_list():
     for post in posts:
         post.update({'date': str(post['date'])})
 
-    return jsonify(code=0, response=posts)
+    return Response(mimetype='application/json', response=ujson.dumps({'code': 0, 'response': post}))
 
 
 @post_API.route('remove/', methods=['POST'])
@@ -158,7 +165,7 @@ def post_remove():
 
     cursor.close()
     db.close()
-    return jsonify(code=0, response={'post': post})
+    return Response(mimetype='application/json', response=ujson.dumps({'code': 0, 'response': {'post': post}}))
 
 
 @post_API.route('restore/', methods=['POST'])
@@ -181,7 +188,7 @@ def post_restore():
 
     cursor.close()
     db.close()
-    return jsonify(code=0, response={'post': post})
+    return Response(mimetype='application/json', response=ujson.dumps({'code': 0, 'response': {'post': post}}))
 
 
 @post_API.route('update/', methods=['POST'])
@@ -203,7 +210,7 @@ def post_update():
     post = queries.post_details(cursor, post)
     cursor.close()
     db.close()
-    return jsonify(code=0, response=post)
+    return Response(mimetype='application/json', response=ujson.dumps({'code': 0, 'response': post}))
 
 
 @post_API.route('vote/', methods=['POST'])
@@ -231,4 +238,4 @@ def post_vote():
 
     cursor.close()
     db.close()
-    return jsonify(code=0, response=post)
+    return Response(mimetype='application/json', response=ujson.dumps({'code': 0, 'response': post}))
