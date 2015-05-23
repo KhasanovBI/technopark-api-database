@@ -21,7 +21,7 @@ def jsonify(*args, **kwargs):
 
 
 def parse_json(request):
-    return ujson.loads(request.data)
+    return get_json(request)
 
 
 def _get_data(req, cache):
