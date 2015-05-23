@@ -29,12 +29,12 @@ VALUES (%s, %s, %s, %s, %s);""",
         db.rollback()
         cursor.close()
         code = 5
-        return jsonify(code=code, response=RESPONSE_CODES[code])
+        return jsonify({'code': code, 'response': RESPONSE_CODES[code]})
     cursor.close()
     db.close()
     user = params
     user.update({'id': user_id})
-    return jsonify(code=0, response=user)
+    return jsonify({'code': 0, 'response': user})
 
 
 @user_API.route('details/')
@@ -43,14 +43,14 @@ def user_details():
 
     if email is None:
         code = 1
-        return jsonify(code=code, response=RESPONSE_CODES[code])
+        return jsonify({'code': code, 'response': RESPONSE_CODES[code]})
 
     db = get_connection()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
     user = queries.user_details(cursor, email)
     cursor.close()
     db.close()
-    return jsonify(code=0, response=user)
+    return jsonify({'code': 0, 'response': user})
 
 
 @user_API.route('listPosts/')
@@ -62,7 +62,7 @@ def user_list_posts():
 
     if user is None:
         code = 1
-        return jsonify(code=code, response=RESPONSE_CODES[code])
+        return jsonify({'code': code, 'response': RESPONSE_CODES[code]})
 
     query = """SELECT * FROM `posts` WHERE `user` = %s """
     query_params = (user,)
@@ -89,7 +89,7 @@ def user_list_posts():
     for post in posts:
         post.update({'date': str(post['date'])})
 
-    return jsonify(code=0, response=posts)
+    return jsonify({'code': 0, 'response': posts})
 
 
 @user_API.route('updateProfile/', methods=['POST'])
@@ -111,7 +111,7 @@ def user_update_profile():
     cursor.close()
     db.close()
 
-    return jsonify(code=0, response=user)
+    return jsonify({'code': 0, 'response': user})
 
 
 @user_API.route('follow/', methods=['POST'])
@@ -134,7 +134,7 @@ VALUES (%s, %s);""", (follower, followee))
     user = queries.user_details(cursor, follower)
     cursor.close()
     db.close()
-    return jsonify(code=0, response=user)
+    return jsonify({'code': 0, 'response': user})
 
 
 @user_API.route('listFollowers/')
@@ -146,7 +146,7 @@ def user_list_followers():
 
     if user is None:
         code = 1
-        return jsonify(code=code, response=RESPONSE_CODES[code])
+        return jsonify({'code': code, 'response': RESPONSE_CODES[code]})
 
     query = """SELECT `about`, `email`, `id`, `isAnonymous`, `name`, `username`  FROM `follower_followee` AS `ff`
 JOIN `users` ON `users`.`email` = `ff`.`follower`
@@ -180,7 +180,7 @@ WHERE `ff`.followee = %s"""
 
     cursor.close()
     db.close()
-    return jsonify(code=0, response=users)
+    return jsonify({'code': 0, 'response': users})
 
 
 @user_API.route('listFollowing/')
@@ -192,7 +192,7 @@ def user_list_following():
 
     if user is None:
         code = 1
-        return jsonify(code=code, response=RESPONSE_CODES[code])
+        return jsonify({'code': code, 'response': RESPONSE_CODES[code]})
 
     query = """SELECT `about`, `email`, `id`, `isAnonymous`, `name`, `username`  FROM `follower_followee` AS `ff`
 JOIN `users` ON `users`.`email` = `ff`.`followee`
@@ -226,7 +226,7 @@ WHERE `ff`.follower = %s"""
 
     cursor.close()
     db.close()
-    return jsonify(code=0, response=users)
+    return jsonify({'code': 0, 'response': users})
 
 
 @user_API.route('unfollow/', methods=['POST'])
@@ -247,4 +247,4 @@ def user_unfollow():
     user = queries.user_details(cursor, follower)
     cursor.close()
     db.close()
-    return jsonify(code=0, response=user)
+    return jsonify({'code': 0, 'response': user})

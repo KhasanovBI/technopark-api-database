@@ -28,7 +28,7 @@ def forum_create():
 
     cursor.close()
     db.close()
-    return jsonify(code=0, response=forum)
+    return jsonify({'code': 0, 'response': forum})
 
 
 @forum_API.route('details/')
@@ -38,7 +38,7 @@ def forum_details():
 
     if short_name is None:
         code = 1
-        return jsonify(code=code, response=RESPONSE_CODES[code])
+        return jsonify({'code': code, 'response': RESPONSE_CODES[code]})
     db = get_connection()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
 
@@ -50,7 +50,7 @@ def forum_details():
 
     cursor.close()
     db.close()
-    return jsonify(code=0, response=forum)
+    return jsonify({'code': 0, 'response': forum})
 
 
 @forum_API.route('listPosts/')
@@ -63,7 +63,7 @@ def forum_list_posts():
 
     if forum is None:
         code = 1
-        return jsonify(code=code, response=RESPONSE_CODES[code])
+        return jsonify({'code': code, 'response': RESPONSE_CODES[code]})
 
     query = """SELECT * FROM `posts` WHERE `forum` = %s """
     query_params = (forum,)
@@ -101,7 +101,7 @@ def forum_list_posts():
 
     cursor.close()
     db.close()
-    return jsonify(code=0, response=posts)
+    return jsonify({'code': 0, 'response': posts})
 
 
 @forum_API.route('listThreads/')
@@ -114,7 +114,7 @@ def forum_list_threads():
 
     if forum is None:
         code = 1
-        return jsonify(code=code, response=RESPONSE_CODES[code])
+        return jsonify({'code': code, 'response': RESPONSE_CODES[code]})
 
     query = """SELECT * FROM `threads` WHERE `forum` = %s"""
     query_params = (forum,)
@@ -148,7 +148,7 @@ def forum_list_threads():
 
     cursor.close()
     db.close()
-    return jsonify(code=0, response=threads)
+    return jsonify({'code': 0, 'response': threads})
 
 
 @forum_API.route('listUsers/')
@@ -160,7 +160,7 @@ def forum_list_users():
 
     if forum is None:
         code = 1
-        return jsonify(code=code, response=RESPONSE_CODES[code])
+        return jsonify({'code': code, 'response': RESPONSE_CODES[code]})
 
     query = """SELECT * FROM `users`
             WHERE `email` IN (SELECT DISTINCT `user` FROM `posts` WHERE `forum` = %s)"""
@@ -193,4 +193,4 @@ def forum_list_users():
 
     cursor.close()
     db.close()
-    return jsonify(code=0, response=users)
+    return jsonify({'code': 0, 'response': users})

@@ -16,8 +16,8 @@ def extract_params(input_dict, keys_list):
     return output_dict
 
 
-def jsonify(*args, **kwargs):
-    return Response(mimetype='application/json', response=ujson.dumps(dict(*args, **kwargs)))
+def jsonify(input_dict):
+    return Response(mimetype='application/json', response=ujson.dumps(input_dict))
 
 
 def parse_json(request):
