@@ -2,7 +2,6 @@ import MySQLdb
 from settings import DATABASE
 from flask import Response
 import ujson
-import ujson as json
 
 def get_connection():
     return MySQLdb.connect(host=DATABASE['HOST'], user=DATABASE['USER'], passwd=DATABASE['PASSWORD'],
@@ -21,4 +20,4 @@ def jsonify(input_dict):
 
 
 def parse_json(request):
-    return json.loads(request.data)
+    return ujson.loads(request.data)
