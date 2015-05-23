@@ -94,9 +94,10 @@ def user_list_posts():
 
 @user_API.route('updateProfile/', methods=['POST'])
 def user_update_profile():
-    user = parse_json(request).get('user', None)
-    about = parse_json(request).get('about', None)
-    name = parse_json(request).get('name', None)
+    json_dict = parse_json(request)
+    user = json_dict.get('user', None)
+    about = json_dict.get('about', None)
+    name = json_dict.get('name', None)
 
     db = get_connection()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
@@ -115,8 +116,9 @@ def user_update_profile():
 
 @user_API.route('follow/', methods=['POST'])
 def user_follow():
-    follower = parse_json(request).get('follower', None)
-    followee = parse_json(request).get('followee', None)
+    json_dict = parse_json(request)
+    follower = json_dict.get('follower', None)
+    followee = json_dict.get('followee', None)
 
     db = get_connection()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
@@ -229,8 +231,9 @@ WHERE `ff`.follower = %s"""
 
 @user_API.route('unfollow/', methods=['POST'])
 def user_unfollow():
-    follower = parse_json(request).get('follower', None)
-    followee = parse_json(request).get('followee', None)
+    json_dict = parse_json(request)
+    follower = json_dict.get('follower', None)
+    followee = json_dict.get('followee', None)
 
     db = get_connection()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)

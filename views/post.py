@@ -9,17 +9,18 @@ post_API = Blueprint('post_API', __name__, url_prefix=BASE_URL + 'post/')
 
 @post_API.route('create/', methods=['POST'])
 def post_create():
-    parent = parse_json(request).get('parent', None)
-    thread = parse_json(request).get('thread', None)
-    is_deleted = parse_json(request).get('isDeleted', False)
-    is_spam = parse_json(request).get('isSpam', False)
-    is_edited = parse_json(request).get('isEdited', False)
-    is_post_approved = parse_json(request).get('isApproved', False)
-    is_highlighted = parse_json(request).get('isHighlighted', False)
-    forum = parse_json(request).get('forum', None)
-    user = parse_json(request).get('user', None)
-    date = parse_json(request).get('date', None)
-    message = parse_json(request).get('message', None)
+    json_dict = parse_json(request)
+    parent = json_dict.get('parent', None)
+    thread = json_dict.get('thread', None)
+    is_deleted = json_dict.get('isDeleted', False)
+    is_spam = json_dict.get('isSpam', False)
+    is_edited = json_dict.get('isEdited', False)
+    is_post_approved = json_dict.get('isApproved', False)
+    is_highlighted = json_dict.get('isHighlighted', False)
+    forum = json_dict.get('forum', None)
+    user = json_dict.get('user', None)
+    date = json_dict.get('date', None)
+    message = json_dict.get('message', None)
 
     db = get_connection()
     cursor = db.cursor()
@@ -187,8 +188,9 @@ def post_restore():
 
 @post_API.route('update/', methods=['POST'])
 def post_update():
-    message = parse_json(request).get('message', None)
-    post = parse_json(request).get('post', None)
+    json_dict = parse_json(request)
+    message = json_dict.get('message', None)
+    post = json_dict.get('post', None)
     post = int(post)
 
     db = get_connection()
@@ -209,8 +211,9 @@ def post_update():
 
 @post_API.route('vote/', methods=['POST'])
 def post_vote():
-    vote = parse_json(request).get('vote', None)
-    post = parse_json(request).get('post', None)
+    json_dict = parse_json(request)
+    vote = json_dict.get('vote', None)
+    post = json_dict.get('post', None)
     post = int(post)
 
     db = get_connection()

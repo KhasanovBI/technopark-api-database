@@ -21,35 +21,4 @@ def jsonify(*args, **kwargs):
 
 
 def parse_json(request):
-    return get_json(request)
-
-
-def _get_data(req, cache):
-    getter = getattr(req, 'get_data', None)
-    if getter is not None:
-        return getter(cache=cache)
-    return req.data
-_missing = object()
-
-def get_json(request, silent=False, cache=True):
-    rv = getattr(request, '_cached_json', _missing)
-    if rv is not _missing:
-        return rv
-
-    if request.mimetype != 'application/json':
-        return None
-
-    request_charset = request.mimetype_params.get('charset')
-    try:
-        data = _get_data(request, True)
-        if request_charset is not None:
-            rv = json.loads(data, encoding=request_charset)
-        else:
-            rv = json.loads(data)
-    except ValueError as e:
-        if silent:
-            rv = None
-        else:
-            rv = request.on_json_loading_failed(e)
-    request._cached_json = rv
-    return rv
+    return json.loads(request.data)

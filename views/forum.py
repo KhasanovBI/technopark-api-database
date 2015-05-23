@@ -9,9 +9,10 @@ forum_API = Blueprint('forum_API', __name__, url_prefix=BASE_URL + 'forum/')
 
 @forum_API.route('create/', methods=['POST'])
 def forum_create():
-    name = parse_json(request).get('name', None)
-    short_name = parse_json(request).get('short_name', None)
-    user = parse_json(request).get('user', None)
+    json_dict = parse_json(request)
+    name = json_dict.get('name', None)
+    short_name = json_dict.get('short_name', None)
+    user = json_dict.get('user', None)
     db = get_connection()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
 

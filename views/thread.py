@@ -10,14 +10,15 @@ thread_API = Blueprint('thread_API', __name__, url_prefix=BASE_URL + 'thread/')
 
 @thread_API.route('create/', methods=['POST'])
 def thread_create():
-    is_deleted = parse_json(request).get('isDeleted', False)
-    forum = parse_json(request).get('forum', None)
-    title = parse_json(request).get('title', None)
-    is_closed = parse_json(request).get('isClosed', False)
-    user = parse_json(request).get('user', None)
-    date = parse_json(request).get('date', None)
-    message = parse_json(request).get('message', None)
-    slug = parse_json(request).get('slug', None)
+    json_dict = parse_json(request)
+    is_deleted = json_dict.get('isDeleted', False)
+    forum = json_dict.get('forum', None)
+    title = json_dict.get('title', None)
+    is_closed = json_dict.get('isClosed', False)
+    user = json_dict.get('user', None)
+    date = json_dict.get('date', None)
+    message = json_dict.get('message', None)
+    slug = json_dict.get('slug', None)
 
     thread_id = 0
 
@@ -245,9 +246,10 @@ def thread_open():
 
 @thread_API.route('update/', methods=['POST'])
 def thread_update():
-    message = parse_json(request).get('message', None)
-    slug = parse_json(request).get('slug', None)
-    thread = parse_json(request).get('thread', None)
+    json_dict = parse_json(request)
+    message = json_dict.get('message', None)
+    slug = json_dict.get('slug', None)
+    thread = json_dict.get('thread', None)
     thread = int(thread)
 
     db = get_connection()
@@ -268,8 +270,9 @@ def thread_update():
 
 @thread_API.route('vote/', methods=['POST'])
 def thread_vote():
-    vote = parse_json(request).get('vote', None)
-    thread = parse_json(request).get('thread', None)
+    json_dict = parse_json(request)
+    vote = json_dict.get('vote', None)
+    thread = json_dict.get('thread', None)
     thread = int(thread)
 
     db = get_connection()
@@ -296,8 +299,9 @@ def thread_vote():
 
 @thread_API.route('subscribe/', methods=['POST'])
 def thread_subscribe():
-    user = parse_json(request).get('user', None)
-    thread = parse_json(request).get('thread', None)
+    json_dict = parse_json(request)
+    user = json_dict.get('user', None)
+    thread = json_dict.get('thread', None)
 
     db = get_connection()
     cursor = db.cursor()
@@ -316,8 +320,9 @@ def thread_subscribe():
 
 @thread_API.route('unsubscribe/', methods=['POST'])
 def thread_unsubscribe():
-    user = parse_json(request).get('user', None)
-    thread = parse_json(request).get('thread', None)
+    json_dict = parse_json(request)
+    user = json_dict.get('user', None)
+    thread = json_dict.get('thread', None)
 
     db = get_connection()
     cursor = db.cursor()
