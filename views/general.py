@@ -10,7 +10,7 @@ general_API = Blueprint('general_API', __name__, url_prefix=BASE_URL)
 def clear():
     init_tables()
     code = 0
-    return jsonify(code=code, response=RESPONSE_CODES[code])
+    return jsonify({'code': code, 'response': RESPONSE_CODES[code]})
 
 
 @general_API.route('status/')
@@ -25,4 +25,4 @@ def status():
         response[table] = cursor.fetchone()[0]
     cursor.close()
     db.close()
-    return jsonify(code=0, response=response)
+    return jsonify({'code': 0, 'response': response})
