@@ -4,7 +4,6 @@ from settings import BASE_URL, RESPONSE_CODES
 from utils import queries
 from utils.helper import jsonify, get_connection, parse_json
 
-
 thread_API = Blueprint('thread_API', __name__, url_prefix=BASE_URL + 'thread/')
 
 
@@ -134,24 +133,52 @@ def thread_list_posts():
     thread = request.args.get('thread', None)
     since = request.args.get('since')
     limit = request.args.get('limit')
-    order = request.args.get('order')
+    order = request.args.get('order', 'desc')
+    sort = request.args.get('sort')
 
     if thread is None:
         code = 1
         return jsonify({'code': code, 'response': RESPONSE_CODES[code]})
 
-    query = """SELECT * FROM `posts` WHERE `thread` = %s """
-    query_params = (int(thread),)
-
-    if since is not None:
-        query += "AND `date` >= %s "
-        query_params += (since,)
-
-    query += "ORDER BY `date` " + order + " "
-
-    if limit is not None:
-        query += "LIMIT %s;"
-        query_params += (int(limit),)
+    if sort is None or sort == 'flat':
+        query = """SELECT `id`, `message`, `forum`, `user`, `thread`, `likes`, `dislikes`, `points`, `isDeleted`,
+`isSpam`, `isEdited`, `isApproved`, `isHighlighted`, `date`, `parent` FROM `posts` WHERE `thread` = %s """
+        query_params = (int(thread),)
+        if since is not None:
+            query += "AND `date` >= %s "
+            query_params += (since,)
+        if order == 'desc' or order == 'asc':
+            query += "ORDER BY `date` " + order + " "
+        else:
+            code = 2
+            return jsonify({'code': code, 'response': RESPONSE_CODES[code]})
+        if limit is not None:
+            query += "LIMIT %s;"
+            query_params += (int(limit),)
+    else:
+        root_query = """SELECT `matPath` FROM `posts` WHERE `isRoot` = TRUE AND `thread_id` = %s """
+        root_query_params = (int(thread),)
+        if order == 'desc' or order == 'asc':
+            condition = "ORDER BY `root`.`matPath`" + order + " "
+        else:
+            code = 2
+            return jsonify({'code': code, 'response': RESPONSE_CODES[code]})
+        condition += ', `child`.`matPath` ASC'
+        query_params = tuple()
+        if since is not None:
+            root_condition = "AND `date` >= %s "
+            root_query_params += (since,)
+        if limit is not None:
+            root_condition += 'LIMIT %s'
+            root_query_params += (int(limit),)
+            if sort == 'tree':
+                condition += 'LIMIT %s' + str(limit)
+                query_params += (int(limit),)
+        root_query += root_condition
+        query = """SELECT `id`, `message`, `forum`, `user`, `thread`, `likes`, `dislikes`, `points`, `isDeleted`,
+`isSpam`, `isEdited`, `isApproved`, `isHighlighted`, `date`, `parent` FROM (""" + root_query + """) AS root
+INNER JOIN `posts` child ON child.`matPath` LIKE CONCAT(root.`matPath`, '%s') """ + condition
+        query_params = root_query_params + query_params + ('%',)
 
     db = get_connection()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)

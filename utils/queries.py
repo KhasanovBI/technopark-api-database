@@ -1,6 +1,7 @@
 from settings import sqlSchema
 from helper import get_connection
 
+
 def list_following(cursor, email):
     cursor.execute("""SELECT `followee` FROM `follower_followee` WHERE `follower` = %s""", (email,))
     z = cursor.fetchall()
@@ -50,7 +51,8 @@ def thread_details(cursor, thread_id):
 
 
 def post_details(cursor, post_id):
-    cursor.execute("""SELECT * FROM `posts` WHERE `id` = %s;""", (post_id,))
+    cursor.execute("""SELECT `id`, `message`, `forum`, `user`, `thread`, `likes`, `dislikes`, `points`, `isDeleted`,
+`isSpam`, `isEdited`, `isApproved`, `isHighlighted`, `date`, `parent` FROM `posts` WHERE `id` = %s;""", (post_id,))
     post = cursor.fetchone()
 
     if post is None:

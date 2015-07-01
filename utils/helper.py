@@ -3,6 +3,7 @@ from settings import DATABASE
 from flask import Response
 import ujson
 
+
 def get_connection():
     return MySQLdb.connect(host=DATABASE['HOST'], user=DATABASE['USER'], passwd=DATABASE['PASSWORD'],
                            db=DATABASE['NAME'], charset=DATABASE['CHARSET'])

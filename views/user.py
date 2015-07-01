@@ -10,7 +10,6 @@ user_API = Blueprint('user_API', __name__, url_prefix=BASE_URL + 'user/')
 
 @user_API.route('create/', methods=['POST'])
 def user_create():
-
     params = ['email', 'username', 'name', 'about', 'isAnonymous']
     params = extract_params(parse_json(request), params)
     if params['isAnonymous'] is None:

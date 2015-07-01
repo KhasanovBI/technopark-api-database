@@ -65,7 +65,8 @@ def forum_list_posts():
         code = 1
         return jsonify({'code': code, 'response': RESPONSE_CODES[code]})
 
-    query = """SELECT * FROM `posts` WHERE `forum` = %s """
+    query = """SELECT  `id`, `message`, `forum`, `user`, `thread`, `likes`, `dislikes`, `points`, `isDeleted`,
+`isSpam`, `isEdited`, `isApproved`, `isHighlighted`, `date`, `parent` FROM `posts` WHERE `forum` = %s """
     query_params = (forum,)
 
     if since is not None:

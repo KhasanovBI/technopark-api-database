@@ -3,7 +3,7 @@ from flask import Blueprint, request
 from settings import BASE_URL, RESPONSE_CODES
 from utils import queries
 from utils.helper import jsonify, get_connection, parse_json
-
+from numconv import int2str
 post_API = Blueprint('post_API', __name__, url_prefix=BASE_URL + 'post/')
 
 
@@ -26,16 +26,28 @@ def post_create():
     cursor = db.cursor()
 
     post_id = 0
+
+    if parent is None:
+        isRoot = True
+        matPath = ''
+    else:
+        isRoot = False
+        cursor.execute("""SELECT `matPath` FROM `posts` WHERE `id` = %s""", (parent,))
+        matPath = cursor.fetchone()[0]
     try:
         cursor.execute(
             """INSERT INTO `posts`
-            (`parent`, `thread`, `isDeleted`, `isSpam`, `isEdited`, `isApproved`, `isHighlighted`, `forum`,
-             `user`, `date`, `message`)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);""",
-            (parent, thread, is_deleted, is_spam, is_edited, is_post_approved, is_highlighted, forum, user, date,
-             message))
-
+            (`thread`, `isDeleted`, `isSpam`, `isEdited`, `isApproved`, `isHighlighted`, `forum`,
+             `user`, `date`, `message`, `parent`, `isRoot`)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);""",
+            (thread, is_deleted, is_spam, is_edited, is_post_approved, is_highlighted, forum, user, date,
+             message, parent, isRoot))
         post_id = cursor.lastrowid
+
+        base36 = int2str(int(post_id), radix=36)
+        matPath += str(len(base36)) + base36
+
+        cursor.execute("""UPDATE `posts` SET matPath = %s WHERE `id` = %s""", (matPath, post_id))
 
         cursor.execute("""UPDATE `threads` SET `posts` = `posts` + 1 WHERE `id` = %s;""", (thread,))
         db.commit()
