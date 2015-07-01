@@ -156,15 +156,16 @@ def thread_list_posts():
             query += "LIMIT %s;"
             query_params += (int(limit),)
     else:
-        root_query = """SELECT `matPath` FROM `posts` WHERE `isRoot` = TRUE AND `thread_id` = %s """
+        root_query = """SELECT `matPath` FROM `posts` WHERE `isRoot` = TRUE AND `thread` = %s """
         root_query_params = (int(thread),)
         if order == 'desc' or order == 'asc':
-            condition = "ORDER BY `root`.`matPath`" + order + " "
+            condition = "ORDER BY `root`.`matPath` " + order + " "
         else:
             code = 2
             return jsonify({'code': code, 'response': RESPONSE_CODES[code]})
-        condition += ', `child`.`matPath` ASC'
+        condition += ', `child`.`matPath` ASC '
         query_params = tuple()
+        root_condition = ''
         if since is not None:
             root_condition = "AND `date` >= %s "
             root_query_params += (since,)
@@ -172,23 +173,20 @@ def thread_list_posts():
             root_condition += 'LIMIT %s'
             root_query_params += (int(limit),)
             if sort == 'tree':
-                condition += 'LIMIT %s' + str(limit)
+                condition += 'LIMIT %s'
                 query_params += (int(limit),)
         root_query += root_condition
         query = """SELECT `id`, `message`, `forum`, `user`, `thread`, `likes`, `dislikes`, `points`, `isDeleted`,
 `isSpam`, `isEdited`, `isApproved`, `isHighlighted`, `date`, `parent` FROM (""" + root_query + """) AS root
-INNER JOIN `posts` child ON child.`matPath` LIKE CONCAT(root.`matPath`, '%s') """ + condition
-        query_params = root_query_params + query_params + ('%',)
-
+INNER JOIN `posts` child ON child.matPath LIKE CONCAT(root.matPath, '%%') """ + condition
+        query_params = root_query_params + query_params
     db = get_connection()
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(query, query_params)
-
     posts = [i for i in cursor.fetchall()]
-
     for post in posts:
         post.update({'date': str(post['date'])})
-
+    print query % query_params
     cursor.close()
     db.close()
     return jsonify({'code': 0, 'response': posts})
